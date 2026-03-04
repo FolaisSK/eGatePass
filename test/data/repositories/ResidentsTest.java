@@ -12,7 +12,7 @@ public class ResidentsTest {
     private Resident residentTwo;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         residents = new Residents();
 
         residentOne = new Resident();
@@ -27,15 +27,15 @@ public class ResidentsTest {
     }
 
     @Test
-    void testToSaveAResident_ResidentsCountIs1() {
-        Resident saved = residents.save(residentOne);
+    public void testToSaveAResident_ResidentsCountIs1() {
+        assertEquals(0, residents.count());
+        Resident savedResident = residents.save(residentOne);
         assertEquals(1, residents.count());
-        assertEquals(1, saved.getId());
-        assertNotNull(saved);
+        assertEquals(1, savedResident.getId());
     }
 
     @Test
-    void testToSaveTwoResidents_ResidentsCountIasTwo() {
+    public void testToSaveTwoResidents_ResidentsCountIsTwo() {
         residents.save(residentOne);
         residents.save(residentTwo);
         assertEquals(2, residents.count());
@@ -44,34 +44,28 @@ public class ResidentsTest {
     }
 
     @Test
-    void testToFindResidentById() {
+    public void testToFindResidentById() {
         residents.save(residentOne);
-        Resident found = residents.findById(1);
-        assertNotNull(found);
-        assertEquals("Folajimi Lawal", found.getName());
-        assertEquals("Block A, Flat 1", found.getHouseAddress());
+        Resident foundResident = residents.findById(1);
+        assertEquals("Folajimi Lawal", foundResident.getName());
+        assertEquals("Block A, Flat 1", foundResident.getHouseAddress());
     }
 
     @Test
-    void testToFindResidentWithIdNotAssigned_NoResidentIsFound() {
-        Resident found = residents.findById(999);
-        assertNull(found);
+    public void testToFindResidentWithIdNotAssigned_NoResidentIsFound() {
+        Resident foundResident = residents.findById(999);
+        assertNull(foundResident);
     }
 
     @Test
-    void testToSaveTwoResidents_SizeOfAllTheResidentsIs2() {
+    public void testToSaveTwoResidents_SizeOfAllTheResidentsIs2() {
         residents.save(residentOne);
         residents.save(residentTwo);
         assertEquals(2, residents.findAll().size());
     }
 
     @Test
-    void testToFindSizeOfAllTheResidents_NoResidentIsSaved() {
-        assertEquals(0, residents.findAll().size());
-    }
-
-    @Test
-    void testToSaveTwoResidents_DeleteOneResident_CannotFindResidentById() {
+    public void testToSaveTwoResidents_DeleteOneResident_CannotFindResidentById() {
         residents.save(residentOne);
         residents.save(residentTwo);
         residents.delete(residentOne);
@@ -80,7 +74,7 @@ public class ResidentsTest {
     }
 
     @Test
-    void testToDeleteResidentById_CannotFindResidentById() {
+    public void testToDeleteResidentById_CannotFindResidentById() {
         residents.save(residentOne);
         residents.save(residentTwo);
         residents.deleteById(1);
@@ -89,14 +83,14 @@ public class ResidentsTest {
     }
 
     @Test
-    void testDeleteResidentByObject() {
+    public void testDeleteResidentByObject() {
         residents.save(residentOne);
         residents.deleteByObject(residentOne);
         assertEquals(0, residents.count());
     }
 
     @Test
-    void testToSaveTwoResidents_DeleteAllResidents_ResidentsCountIsZero() {
+    public void testToSaveTwoResidents_DeleteAllResidents_ResidentsCountIsZero() {
         residents.save(residentOne);
         residents.save(residentTwo);
         residents.deleteAll();
@@ -104,7 +98,7 @@ public class ResidentsTest {
     }
 
     @Test
-    void testUpdateSavedResident() {
+    public void testUpdateSavedResident() {
         residents.save(residentOne);
         residentOne.setName("Alice Updated");
         residentOne.setHouseAddress("Block C, Flat 15");

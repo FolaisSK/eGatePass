@@ -30,9 +30,9 @@ public class Residents implements ResidentRepo{
             resident.setId(nextId++);
             residents.add(resident);
         } else {
-            Resident existing = findById(resident.getId());
-            if (existing != null) {
-                int index = residents.indexOf(existing);
+            Resident existingResident = findById(resident.getId());
+            if (existingResident != null) {
+                int index = residents.indexOf(existingResident);
                 residents.set(index, resident);
             } else {
                 residents.add(resident);
