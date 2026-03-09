@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Residents implements ResidentRepo{
-    private List<Resident> residents = new ArrayList<>();
-    private int nextId = 1;
+    private static List<Resident> residents = new ArrayList<>();
+    private static int nextId = 1;
 
     @Override
     public List<Resident> findAll() {
@@ -20,6 +20,14 @@ public class Residents implements ResidentRepo{
             if (resident.getId() == id) {
                 return resident;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public Resident findByPhoneNumber(String phoneNumber) {
+        for (Resident resident : residents){
+            if(resident.getPhoneNumber().equals(phoneNumber)) return resident;
         }
         return null;
     }
