@@ -19,17 +19,9 @@ public class EstateManagerControllers {
     @PostMapping("/resident")
     public ApiResponse onboardNewResident(@RequestBody OnboardResidentRequest request) {
         try {
-            return new ApiResponse(
-                    true,
-                    HttpStatus.CREATED.name(),
-                    residentManagementService.onboardResident(request)
-            );
+            return new ApiResponse(true, HttpStatus.CREATED.name(), residentManagementService.onboardResident(request));
         } catch (Exception e) {
-            return new ApiResponse(
-                    false,
-                    HttpStatus.BAD_REQUEST.name(),
-                    e.getMessage()
-            );
+            return new ApiResponse(false, HttpStatus.BAD_REQUEST.name(), e.getMessage());
         }
     }
 

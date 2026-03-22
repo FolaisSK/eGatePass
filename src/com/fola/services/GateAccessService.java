@@ -89,6 +89,7 @@ public class GateAccessService {
         gatePass.setValidTill(generateVisitorEntryCodeRequest.getValidTill());
         gatePass.setResidentEmail(generateVisitorEntryCodeRequest.getResidentEmail());
         gatePass.setVisitor(visitor);
+        gatePassRepository.save(gatePass);
 
         return generateVisitorEntryCodeResponse;
     }

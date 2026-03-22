@@ -4,9 +4,11 @@ import com.fola.data.models.Resident;
 import com.fola.data.repositories.GatePassRepository;
 import com.fola.data.repositories.ResidentRepository;
 import com.fola.dtos.requests.GenerateResidentEntryCodeRequest;
+import com.fola.dtos.requests.GenerateVisitorEntryCodeRequest;
 import com.fola.dtos.requests.OnboardResidentRequest;
 import com.fola.dtos.requests.ValidateCodeRequest;
 import com.fola.dtos.responses.GenerateResidentEntryCodeResponse;
+import com.fola.dtos.responses.GenerateVisitorEntryCodeResponse;
 import com.fola.dtos.responses.OnboardResidentResponse;
 import com.fola.dtos.responses.ValidateCodeResponse;
 import com.fola.exceptions.ResidentAlreadyExistException;
@@ -43,11 +45,15 @@ public class ResidentManagementServiceTest {
     private ValidateCodeRequest validateCodeRequest;
     private ValidateCodeResponse validateCodeResponse;
 
+    private GenerateVisitorEntryCodeRequest generateVisitorEntryCodeRequest;
+    private GenerateVisitorEntryCodeResponse generateVisitorEntryCodeResponse;
+
     @BeforeEach
     public void setUp(){
         onboardResidentRequest = new OnboardResidentRequest();
         generateResidentEntryCodeRequest = new GenerateResidentEntryCodeRequest();
         validateCodeRequest = new ValidateCodeRequest();
+        generateVisitorEntryCodeRequest = new GenerateVisitorEntryCodeRequest();
         residentRepository.deleteAll();
     }
 
@@ -134,6 +140,35 @@ public class ResidentManagementServiceTest {
         generateResidentEntryCodeRequest.setResidentId(foundResident.get().getId());
         generateResidentEntryCodeRequest.setValidTill(LocalTime.of(14,30));
         assertThrows(ResidentIsNotEnabledException.class,()-> gateAccessService.generateResidentEntryCode(generateResidentEntryCodeRequest));
+    }
+
+    @Test
+    public void onboardResident_GenerateVisitorEntryCode_CodeIsValid(){
+        onboardResidentRequest.setName("Folashade");
+        onboardResidentRequest.setAddress("Block A Flat 5");
+        onboardResidentRequest.setEmail("folashade@gmail.com");
+        onboardResidentRequest.setPhone("08079358997");
+        onboardResidentResponse = residentManagementService.onboardResident(onboardResidentRequest);
+        assertTrue(residentRepository.existsResidentByEmailOrPhoneNumber("folashade@gmail.com", "09079358997"));
+
+        generateVisitorEntryCodeRequest.setVisitorPhone("11110000222");
+        generateVisitorEntryCodeRequest.setVisitorsName("Barry Allen");
+        generateVisitorEntryCodeRequest.setResidentEmail(onboardResidentRequest.getEmail());
+        generateVisitorEntryCodeRequest.setPurposeOfComing("Family Visit");
+        generateVisitorEntryCodeRequest.setValidTill(LocalTime.of(21, 30));
+
+        generateVisitorEntryCodeResponse = gateAccessService.generateVisitorEntryCode(generateVisitorEntryCodeRequest);
+
+        validateCodeRequest.setCodeType(generateVisitorEntryCodeResponse.getCodeType());
+        validateCodeRequest.setCode(generateVisitorEntryCodeResponse.getCode());
+        validateCodeResponse = gateAccessService.validateCode(validateCodeRequest);
+        validateCodeResponse.setVisitorsName(generateVisitorEntryCodeResponse.getVisitorName());
+
+        assertEquals("ENTRY", generateVisitorEntryCodeResponse.getCodeType());
+        assertEquals("21:30", generateVisitorEntryCodeResponse.getValidTill());
+        assertEquals("Barry Allen",validateCodeResponse.getVisitorsName());
+        assertEquals("Folashade", validateCodeResponse.getCreatedBy());
+        assertTrue(validateCodeResponse.isValid());
     }
 
 }
