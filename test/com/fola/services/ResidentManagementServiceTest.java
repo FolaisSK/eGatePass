@@ -136,5 +136,4 @@ public class ResidentManagementServiceTest {
         assertThrows(ResidentIsNotEnabledException.class,()-> gateAccessService.generateResidentEntryCode(generateResidentEntryCodeRequest));
     }
 
-
 }
