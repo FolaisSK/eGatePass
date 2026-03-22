@@ -17,8 +17,12 @@ public class ResidentControllers {
     private GateAccessService gateAccessService;
 
     @PostMapping("/entry/generate-code")
-    public GenerateResidentEntryCodeResponse generateResidentEntryCode(@RequestBody GenerateResidentEntryCodeRequest request) {
-        return gateAccessService.generateResidentEntryCode(request);
+    public ApiResponse generateResidentEntryCode(@RequestBody GenerateResidentEntryCodeRequest request) {
+        try {
+            return new ApiResponse(true, HttpStatus.CREATED.name(),  gateAccessService.generateResidentEntryCode(request));
+        } catch (Exception e){
+            return new ApiResponse(false, HttpStatus.BAD_REQUEST.name(), e.getMessage());
+        }
     }
 
     @PostMapping("/visitor/entry/generate-code")

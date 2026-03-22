@@ -40,6 +40,13 @@ public class EstateManagerControllers {
         }
     }
 
-
+    @GetMapping("/view-residents")
+    public ApiResponse viewAllResidents(){
+        try {
+            return new ApiResponse(true, HttpStatus.OK.name(), residentManagementService.viewAllResidents());
+        } catch (Exception e) {
+            return new ApiResponse(false, HttpStatus.BAD_REQUEST.name(), e.getMessage());
+        }
+    }
 }
 

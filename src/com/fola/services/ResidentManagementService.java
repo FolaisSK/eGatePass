@@ -10,6 +10,7 @@ import com.fola.utils.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,8 +31,6 @@ public class ResidentManagementService {
         return "Resident has been deleted!";
     }
 
-
-
     private void validateCheckDuplicateFor(Resident resident){
         if(residentRepository.existsResidentByEmailOrPhoneNumber(resident.getEmail(), resident.getPhoneNumber())) throw new ResidentAlreadyExistException("Resident already exists");
     }
@@ -41,5 +40,9 @@ public class ResidentManagementService {
         resident.get().setEnabled(false);
         residentRepository.save(resident.get());
         return "Resident has been disabled!";
+    }
+
+    public List<OnboardResidentResponse> viewAllResidents(){
+        return residentRepository.findAll().stream().map(resident -> Mapper.map(resident)).toList();
     }
 }
