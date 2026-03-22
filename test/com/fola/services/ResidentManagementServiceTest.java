@@ -1,5 +1,6 @@
 package com.fola.services;
 
+import com.fola.data.models.Resident;
 import com.fola.data.repositories.GatePassRepository;
 import com.fola.data.repositories.ResidentRepository;
 import com.fola.dtos.requests.GenerateResidentEntryCodeRequest;
@@ -9,12 +10,14 @@ import com.fola.dtos.responses.GenerateResidentEntryCodeResponse;
 import com.fola.dtos.responses.OnboardResidentResponse;
 import com.fola.dtos.responses.ValidateCodeResponse;
 import com.fola.exceptions.ResidentAlreadyExistException;
+import com.fola.exceptions.ResidentIsNotEnabledException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -112,4 +115,26 @@ public class ResidentManagementServiceTest {
         assertEquals("ENTRY", validateCodeResponse.getCodeType());
         System.out.println(validateCodeResponse);
     }
+
+    @Test
+    public void onboardResident_DisableResident_GenerateEntryCodeThrowsException(){
+        onboardResidentRequest.setName("Folashade");
+        onboardResidentRequest.setAddress("Block A Flat 5");
+        onboardResidentRequest.setEmail("folashade@gmail.com");
+        onboardResidentRequest.setPhone("08079358997");
+        onboardResidentResponse = residentManagementService.onboardResident(onboardResidentRequest);
+        assertTrue(residentRepository.existsResidentByEmailOrPhoneNumber("folashade@gmail.com", "08079358997"));
+
+        residentManagementService.disableResident(onboardResidentResponse.getResidentId());
+        Optional<Resident> foundResident = residentRepository.findByEmail("folashade@gmail.com");
+        assertTrue(foundResident.isPresent());
+        System.out.println(foundResident);
+        assertFalse(foundResident.get().isEnabled());
+
+        generateResidentEntryCodeRequest.setResidentId(foundResident.get().getId());
+        generateResidentEntryCodeRequest.setValidTill(LocalTime.of(14,30));
+        assertThrows(ResidentIsNotEnabledException.class,()-> gateAccessService.generateResidentEntryCode(generateResidentEntryCodeRequest));
+    }
+
+
 }

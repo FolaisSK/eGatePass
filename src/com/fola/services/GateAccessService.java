@@ -11,6 +11,8 @@ import com.fola.dtos.requests.ValidateCodeRequest;
 import com.fola.dtos.responses.GenerateResidentEntryCodeResponse;
 import com.fola.dtos.responses.GenerateVisitorEntryCodeResponse;
 import com.fola.dtos.responses.ValidateCodeResponse;
+import com.fola.exceptions.ResidentDoesNotExistException;
+import com.fola.exceptions.ResidentIsNotEnabledException;
 import com.fola.utils.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,8 @@ public class GateAccessService {
         generateResidentEntryCodeResponse.setCreatedAT(String.valueOf(LocalTime.now()));
         generateResidentEntryCodeResponse.setDestination(resident.get().getHouseAddress());
 
+        checkResidentIsEnabled(resident.get());
+
         GatePass gatePass = new GatePass();
         gatePass.setCode(generateResidentEntryCodeResponse.getCode());
         gatePass.setValid(true);
@@ -52,6 +56,10 @@ public class GateAccessService {
         validateCodeResponse.setCodeType(validateCodeRequest.getCodeType());
         GatePass gatePass = gatePassRepository.getByCode(validateCodeRequest.getCode());
         validateCodeResponse.setValid(gatePass.isValid());
+        Optional<Resident> resident = residentRepository.findByEmail(gatePass.getResidentEmail());
+        if(resident.isEmpty()) throw new ResidentDoesNotExistException("No Resident");
+        validateCodeResponse.setCreatedBy(resident.get().getName());
+        validateCodeResponse.setResidentName(resident.get().getName());
         return validateCodeResponse;
     }
 
@@ -59,9 +67,14 @@ public class GateAccessService {
         GenerateVisitorEntryCodeResponse generateVisitorEntryCodeResponse = new GenerateVisitorEntryCodeResponse();
         generateVisitorEntryCodeResponse.setVisitorName(generateVisitorEntryCodeRequest.getVisitorsName());
         generateVisitorEntryCodeResponse.setCodeType(String.valueOf(Types.ENTRY));
+        generateVisitorEntryCodeResponse.setCode(generateCode());
         return generateVisitorEntryCodeResponse;
     }
     private String generateCode(){
         return RandomCodeGenerator.generateCode(6);
+    }
+
+    private void checkResidentIsEnabled(Resident resident){
+        if(!resident.isEnabled()) throw new ResidentIsNotEnabledException("Resident Is Disabled");
     }
 }
