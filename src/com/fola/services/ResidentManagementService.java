@@ -31,10 +31,6 @@ public class ResidentManagementService {
         return "Resident has been deleted!";
     }
 
-    private void validateCheckDuplicateFor(Resident resident){
-        if(residentRepository.existsResidentByEmailOrPhoneNumber(resident.getEmail(), resident.getPhoneNumber())) throw new ResidentAlreadyExistException("Resident already exists");
-    }
-
     public String disableResident(String residentId) {
         Optional<Resident> resident = Optional.of(residentRepository.findById(residentId).orElseThrow(()-> new ResidentDoesNotExistException("Resident Does Not Exist!")));
         resident.get().setEnabled(false);
@@ -44,5 +40,9 @@ public class ResidentManagementService {
 
     public List<OnboardResidentResponse> viewAllResidents(){
         return residentRepository.findAll().stream().map(resident -> Mapper.map(resident)).toList();
+    }
+
+    private void validateCheckDuplicateFor(Resident resident){
+        if(residentRepository.existsResidentByEmailOrPhoneNumber(resident.getEmail(), resident.getPhoneNumber())) throw new ResidentAlreadyExistException("Resident already exists");
     }
 }
